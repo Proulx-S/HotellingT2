@@ -1,4 +1,4 @@
-function stats = T2Hot1(X,mu,alpha)
+function stats = T2Hot1(X,mu,alpha,mask)
 %Hotelling's T-Squared test for one multivariate sample. 
 %
 %   Syntax: function [T2Hot1] = T2Hot1(X,alpha) 
@@ -94,6 +94,10 @@ if (alpha <= 0 | alpha >= 1)
    return;
 end;
 
+if exist('mask','var') && ~isempty(mask)
+    X = X(:,:,mask);
+end;
+
 [n,p,r]=size(X);
 
 if ~exist('mu','var') || isempty(mu)
@@ -161,8 +165,15 @@ else
       end
    end;
    stats.method = method;
-   stats.T2 = reshape(T2,sz(3:end));
-   stats.P  = reshape(P,sz(3:end));
+   if exist('mask','var') && ~isempty(mask)
+      stats.T2 = nan(size(mask));
+      stats.T2(mask) = T2;
+      stats.P  = nan(size(mask));
+      stats.P(mask)  = P;
+   else
+      stats.T2 = reshape(T2,sz(3:end)); 
+      stats.P  = reshape(P ,sz(3:end));
+   end
    stats.n  = n;
    stats.p  = p;
 end;
